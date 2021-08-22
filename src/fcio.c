@@ -93,7 +93,13 @@ bool autoCR;
 
 #define DEBUG
 
-void fc_init(byte h640, byte v400, byte rows, char *bordersFilename)
+void fc_loadReservedBitmap(char *name)
+{
+    fc_loadFCI(name, EXTCHARBASE, SYSPAL);
+    fc_resetPalette();
+}
+
+void fc_init(byte h640, byte v400, byte rows, char *reservedBitmapFile)
 {
     mega65_io_enable();
 
@@ -120,13 +126,12 @@ void fc_init(byte h640, byte v400, byte rows, char *bordersFilename)
     bgcolor(COLOR_BLACK);
     bordercolor(COLOR_BLACK);
 
-    fc_go16bit(h640, v400, rows);
+    fc_screenmode(h640, v400, rows);
     autoCR = false;
 
-    if (bordersFilename)
+    if (reservedBitmapFile)
     {
-        fc_loadFCI(bordersFilename, EXTCHARBASE, SYSPAL);
-        fc_resetPalette();
+        fc_loadReservedBitmap(reservedBitmapFile);
     }
     fc_textcolor(COLOR_GREEN);
     fc_clrscr();
@@ -302,12 +307,19 @@ void adjustBorders(byte extraRows, byte extraColumns)
     POKE(53371u, gScreenRows);
 }
 
-void fc_go16bit(byte h640, byte v400, byte rows)
+void fc_screenmode(byte h640, byte v400, byte rows)
 {
     int extraRows = 0;
 
     mega65_io_enable();
-    gScreenRows = rows;
+    if (rows == 0)
+    {
+        gScreenRows = v400 ? 50 : 25;
+    }
+    else
+    {
+        gScreenRows = rows;
+    }
 
     HOTREG |= 0x80;   // enable HOTREG if previously disabled
     VIC4CTRL |= 0x04; // enable full colour for characters with high byte set
@@ -335,7 +347,6 @@ void fc_go16bit(byte h640, byte v400, byte rows)
         VIC3CTRL &= 0xf7;
         extraRows = (gScreenRows - 25) * 2;
     }
-
 
     gScreenSize = gScreenRows * gScreenColumns;
     lfill_skip(SCREENBASE, 32, gScreenSize, 2);
@@ -417,15 +428,6 @@ void fc_addGraphicsRect(byte x0, byte y0, byte width, byte height,
         }
     }
 }
-
-/**
- * @brief allocate memory for FCI file and load it
- *
- * @param filename name of FCI file to load
- * @param address address to load bitmap (or 0 for automatic allocation)
- * @param pAddress address to load palette (or 0 for automatic allocation)
- * @return fciInfo* info block containging start address and metadata
- */
 
 fciInfo *fc_loadFCI(char *filename, himemPtr address, himemPtr paletteAddress)
 {
@@ -598,32 +600,26 @@ void fc_fadeFCI(fciInfo *info, byte x0, byte y0, byte steps)
     fc_fadePalette(info->paletteAdr, info->paletteSize, info->reservedSysPalette, steps, false);
 }
 
-void fc_displayFCI(fciInfo *info, byte x0, byte y0)
+void fc_displayFCI(fciInfo *info, byte x0, byte y0, bool setPalette)
 {
     fc_addGraphicsRect(x0, y0, info->columns, info->rows, info->baseAdr);
+    if (setPalette)
+    {
+        fc_loadFCIPalette(info);
+    }
 }
 
-void fc_setPaletteFromFCI(fciInfo *info)
+void fc_loadFCIPalette(fciInfo *info)
 {
     fc_loadPalette(info->paletteAdr, info->paletteSize,
                    info->reservedSysPalette);
 }
 
-/**
- * @brief load FCI file and display it
- *
- * @param filename FCI file to load
- * @param x0 origin x
- * @param y0 origin y
- * @return fciInfo* associated fciInfo block for file
- */
-
 fciInfo *fc_displayFCIFile(char *filename, byte x0, byte y0)
 {
     fciInfo *info;
     info = fc_loadFCI(filename, 0, 0);
-    fc_setPaletteFromFCI(info);
-    fc_displayFCI(info, x0, y0);
+    fc_displayFCI(info, x0, y0, true);
     return info;
 }
 
@@ -1003,20 +999,18 @@ char fc_getkeyP(byte x, byte y, const char *prompt)
     return cgetc();
 }
 
-void fc_hlinexy(byte x0, byte y, byte x1, byte lineChar)
+void fc_hlinexy(byte x, byte y, byte width, byte lineChar)
 {
-    for (cgi = x0; cgi <= x1; cgi++)
+    for (cgi = x; cgi < x + width; cgi++)
     {
-        fc_plotExtChar(gCurrentWin->x0 + cgi, gCurrentWin->y0 + y, lineChar);
+        fc_plotExtChar(gCurrentWin->x0 + x + cgi, gCurrentWin->y0 + y, lineChar);
     }
 }
 
-void fc_vlinexy(byte x, byte y0, byte y1, byte lineChar)
+void fc_vlinexy(byte x, byte y, byte height, byte lineChar)
 {
-    //fc_plotExtChar(x, y0, 2);
-    //fc_plotExtChar(x, y1, 3);
-    for (cgi = y0; cgi <= y1; cgi++)
+    for (cgi = y; cgi < y + height; cgi++)
     {
-        fc_plotExtChar(gCurrentWin->x0 + x, gCurrentWin->y0 + cgi, lineChar);
+        fc_plotExtChar(gCurrentWin->x0 + x, gCurrentWin->y0 + y + cgi, lineChar);
     }
 }

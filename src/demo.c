@@ -14,11 +14,12 @@ void jiffySleep(int num)
 
 void main(void)
 {
-    char i, j;
-    fciInfo *img0, *img1;
+    char i;
+    fciInfo *img0;
     textwin *w0, *w1;
 
     fc_init(0, 0, 26, "borders.fci"); // init fcio with low res, 26 rows
+    
     fc_textcolor(8);                  // orange
 
     img0 = fc_loadFCI("once.fci", 0, 0);         // load title image
@@ -39,7 +40,7 @@ void main(void)
     }
 
     jiffySleep(60);
-    fc_go16bit(1, 0, 26); // activate H640 with 26 rows
+    fc_screenmode(1, 0, 26); // activate H640 with 26 rows
     fc_freeGraphAreas();
     fc_textcolor(15);
     fc_center(0, 12, 80, "\"Horses fly without wings,");
@@ -57,9 +58,21 @@ void main(void)
     fc_fadePalette(img0->paletteAdr, img0->paletteSize, true, 128, true);
     fc_freeGraphAreas();
 
-    fc_clrscr();
-    fc_displayFCIFile("luna2.fci", 40, 0);
 
+    img0 = fc_loadFCI("luna2.fci", 0, 0);
+    fc_screenmode(1, 0, 30);          // demonstrate tall 80columns display
+    fc_setPalette(15, 12, 42, 12); // really dark gray/green
+    fc_bordercolor(5);
+    fc_bgcolor(15);
+
+    fc_clrscr();
+    for (i = 0; i < 30; ++i)
+    {
+        fc_gotoxy(78, i);
+        fc_printf("%2d", i);
+    }
+
+    fc_gotoxy(0, 3);
     fc_textcolor(5);
     fc_underline(1);
     fc_puts("fcio features:\n\n");
@@ -80,11 +93,16 @@ void main(void)
             "* mix text and graphics easily\n"
             "* loading images from disc\n"
             "* protected palette and bitmap areas\n"
-            "* palette fading\n");
+            "* palette fading\n\n");
     fc_textcolor(4);
     fc_flash(1);
     fc_revers(1);
-    fc_center(0, 22, 40, "Enjoy!");
+    fc_center(0, fc_wherey(), 40, "Press any key!");
+    fc_getkey();
+    fc_displayFCI(img0, 40, 3, true);
+    fc_line(0,fc_wherey(),40,32,5);
+    fc_center(0,fc_wherey(),40,"Enjoy :)");
+
     while (1)
         ;
 }

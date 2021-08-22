@@ -9,7 +9,7 @@ You may employ JITSA for your own projects free of charge. Once you have complet
 
 JITSA is a software development model, just like Scrum. 
 
-JITSA is the abbreviation for "**J**ust **I**mplement **T**hat **S**hit **A**lready". It was conceived during hours and hours of meaningless meetings, retros, refinements, blame games, plannings, plannings-phase-two, post-market-surveillances, jour-fixes, and other assorted what-have-yous, burning tons of company money and getting nowhere slowly.
+JITSA is the abbreviation for "**J**ust **I**mplement **T**hat **S**hit **A**lready". It was conceived during hours and hours of meaningless meetings, retros, refinements, blame games, plannings, plannings-phase-two, post-market-surveillances, emergency refinements, jour-fixes, and other assorted what-have-yous, burning tons of company money and getting nowhere slowly.
 
 It is rooted in the realization that in modern software development methodologies, people often rather spend their time applying and discussing all kinds of rules and rituals than acutally getting any work done. Or, even worse: People who never ever wrote one single line of useful code debate on hours without end about how an application should be written and then force some poor code slaves to do some meaningless and unfulfilling work.
 
