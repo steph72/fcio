@@ -14,7 +14,9 @@ c1541 <<EOF
 attach disc/fcdemo.d81
 delete autoboot.c65
 delete fcdemo.m65
+delete basloader
 write cbm/autoboot.c65
+write cbm/basloader
 write bin/fcdemo.m65
 EOF
 
