@@ -16,7 +16,7 @@ gReserve = False
 gCompress = False
 gExcludePalette = False
 gVersion = "1.0"
-gPreserveBackgroundColour = False
+
 
 def vprint(*values):
     global gVerbose
@@ -28,7 +28,6 @@ def showUsage():
     print("usage: "+sys.argv[0]+" [-rv] infile outfile")
     print("convert PNG to MEGA65 fci file")
     print("options: -r  reserve system palette entries")
-    print("         -0  preserve background colour")
     print("         -x  exclude palette data")
     print("         -v  verbose output")
     print("         -c  compress output")
@@ -43,7 +42,7 @@ def nybswap(i):
 
 
 def parseArgs():
-    global gReserve, gVerbose, gCompress, gExcludePalette, gPreserveBackgroundColour
+    global gReserve, gVerbose, gCompress, gExcludePalette
     args = sys.argv.copy()
     args.remove(args[0])
     fileargcount = 0
@@ -60,8 +59,7 @@ def parseArgs():
                     gCompress = True
                 elif opt == "x":
                     gExcludePalette = True
-                elif opt == "0":
-                    gPreserveBackgroundColour = True
+
                 else:
                     print("Unknown option", opt)
                     showUsage()
@@ -75,6 +73,7 @@ def parseArgs():
                 print("too many arguments")
                 showUsage()
     return infile, outfile
+
 
 def pngRowsToM65Rows(pngRows):
     pngX = 0
@@ -97,14 +96,10 @@ def pngRowsToM65Rows(pngRows):
         pngX = 0
         for currentColumn in currentRow:
             if gReserve:
-                if gPreserveBackgroundColour:
-                    if currentColumn!=0:
-                        currentColumn += 16
-                else:
-                    currentColumn += 16
+                currentColumn += 16
             m65X = pngX//8
             m65Y = pngY//8
-            m65Byte = ((pngX%8)+(pngY*8)) % 64
+            m65Byte = ((pngX % 8)+(pngY*8)) % 64
             m65Rows[m65Y][m65X][m65Byte] = currentColumn
             pngX += 1
         pngY += 1
@@ -158,6 +153,12 @@ gHeight = pngInfo["size"][1]
 
 vprint("infile size is ", gWidth, "x", gHeight, "pixels")
 
+if (gWidth % 8 != 0 or gHeight % 8 != 0):
+    print("error: widht and height must be multiple of 8,")
+    print("but actual dimensions are ", gWidth, "x", gHeight)
+    exit(5)
+
+
 try:
     palette = pngInfo["palette"]
 except:
@@ -173,23 +174,19 @@ else:
     if gReserve:
         if len(palette) > 240:
             print("error: can't reserve system palette because source PNG "
-                "has >240 palette entries.")
+                  "has >240 palette entries.")
             exit(2)
 
         # add placeholders for system colours
         vprint("reserving system colour space")
-        if gPreserveBackgroundColour:
-            maxC = 15
-        else:
-            maxC = 16
-        for i in range(maxC):
+        for i in range(16):
             vic4_palette.append((0, 0, 0))
 
     for i in palette:
         vic4_palette.append((i[0], i[1], i[2]))
 
-    vprint("outfile has",len(vic4_palette),"palette entries")
-    
+    vprint("outfile has", len(vic4_palette), "palette entries")
+
 rows = list(pngData[2])
 imageData, numRows, numColumns = pngRowsToM65Rows(rows)
 m65data = bytearray()
@@ -207,7 +204,7 @@ if not gExcludePalette:
     for entry in vic4_palette:
         m65data.extend(entry)
 
-m65data.extend(map(ord,'IMG'))
+m65data.extend(map(ord, 'IMG'))
 
 if gCompress:
     m65data.extend(rle(imageData))

@@ -18,14 +18,14 @@ unsigned int readExt(FILE *inFile, himemPtr addr, byte skipCBMAddressBytes) {
     overallRead= 0;
 
     if (skipCBMAddressBytes) {
-        fread(drbuf, 1, 2, inFile);
+        fread(fcbuf, 1, 2, inFile);
     }
 
     do {
-        readBytes= fread(drbuf, 1, FCBUFSIZE, inFile);
+        readBytes= fread(fcbuf, 1, FCBUFSIZE, inFile);
         if (readBytes) {
             overallRead+= readBytes;
-            lcopy((long)drbuf, insertPos, readBytes);
+            lcopy((long)fcbuf, insertPos, readBytes);
             insertPos+= readBytes;
         }
     } while (readBytes);

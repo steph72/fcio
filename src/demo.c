@@ -12,35 +12,21 @@ void jiffySleep(int num)
         ;
 }
 
-
-
 void main(void)
 {
     char i, j;
     fciInfo *img0, *img1;
     textwin *w0, *w1;
 
-    fc_init(0, 0, 25, NULL); // init fcio
-
-    fc_bordercolor(5);
-    fc_textcolor(8); // orange
-
-    for (j=0;j<12;j++)
-    {
-        fc_go16bit(0,0,25+j);
-        for (i = 0; i < 25+j; ++i)
-        {
-            fc_gotoxy(0, i);
-            fc_printf("%d", i);
-        }
-        fc_getkey();
-    }
+    fc_init(0, 0, 26, "borders.fci"); // init fcio with low res, 26 rows
+    fc_textcolor(8);                  // orange
 
     img0 = fc_loadFCI("once.fci", 0, 0);         // load title image
     fc_center(0, 25, 40, "once upon a time..."); // display prompt at lower center
     fc_fadeFCI(img0, 0, 0, 128);                 // fade in title image
     jiffySleep(60);
 
+    // we can easily scroll graphic areas...
     w0 = fc_makeWin(0, 0, 20, 25);
     w1 = fc_makeWin(20, 0, 20, 25);
     for (i = 0; i < 25; ++i)
@@ -53,7 +39,7 @@ void main(void)
     }
 
     jiffySleep(60);
-    fc_go16bit(1, 0, 26); // activate H640
+    fc_go16bit(1, 0, 26); // activate H640 with 26 rows
     fc_freeGraphAreas();
     fc_textcolor(15);
     fc_center(0, 12, 80, "\"Horses fly without wings,");
@@ -61,9 +47,10 @@ void main(void)
     fc_center(0, 15, 80, "       -- Bedouin proverb");
     jiffySleep(60);
 
+    // load a few files and display them directly
     fc_displayFCIFile("lucky1.fci", 0, 0);
-    fc_displayFCIFile("luna.fci", 55, 12);
-    fc_displayFCIFile("scarlett.fci", 0, 12);
+    fc_displayFCIFile("luna.fci", 55, 14);
+    fc_displayFCIFile("scarlett.fci", 0, 14);
     img0 = fc_displayFCIFile("lsc.fci", 50, 0);
     jiffySleep(120);
 

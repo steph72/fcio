@@ -9,7 +9,7 @@
 #ifndef __FCIO_VARS
 #define __FCIO_VARS
 #define SCREENBASE 0x12000l  // 16 bit screen
-#define EXTCHARBASE 0x14000l // extended characters for map
+#define EXTCHARBASE 0x14000l // 'reserved' graphics for extended characters
 #define SYSPAL 0x15000l      // system palette
 #define PALBASE 0x15300l     // palettes for loaded images
 #define GRAPHBASE 0x40000l   // bitmap characters
@@ -30,7 +30,7 @@ typedef unsigned long himemPtr;
 typedef unsigned int word;
 #endif
 
-extern char *drbuf;
+extern char *fcbuf;
 
 // --------------- graphics ------------------
 
@@ -70,13 +70,10 @@ void fc_fatal(const char *format, ...);
 
 // --- borders, columns and titles ---
 
-void fc_block_raw(byte x0, byte y0, byte x1, byte y1, byte character, byte col);
-void fc_hlinexy_raw(byte x0, byte y, byte x1, byte lineChar);
-void fc_vlinexy_raw(byte x, byte y0, byte y1, byte lineChar);
-void fc_line(byte y, byte x0, byte x1, byte character, byte col);
-#define fc_clearxy(x0, y, x1) fc_line(y, x0, x1, 32, 0)
-#define fc_vlinexy(x, y0, y1) fc_vlinexy_raw(x, y0, y1, 5)
-#define fc_hlinexy(x0, y, x1) fc_hlinexy_raw(x0, y, x1, 0)
+void fc_block(byte x0, byte y0, byte x1, byte y1, byte character, byte col);
+void fc_hlinexy(byte x0, byte y, byte x1, byte lineChar);
+void fc_vlinexy(byte x, byte y0, byte y1, byte lineChar);
+void fc_line(byte x, byte y, byte width, byte character, byte col);
 
 // --- keyboard input ---
 

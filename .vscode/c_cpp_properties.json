@@ -1,0 +1,20 @@
+
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "~/local/share/cc65/include/**",
+                "/usr/share/cc65/include/**",
+                "/usr/local/share/cc65/include/**"
+            ],
+            "defines": [],
+            "compilerPath": "~/local/bin/cc65",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}
